@@ -50,5 +50,6 @@
   - 즐겨찾기 목록 조회 기능
 
 
-![스크린샷 2024-07-31 160936](https://github.com/user-attachments/assets/e8f7377c-6ff6-4957-bc21-59a3e9fc3bcb)
+![image](https://github.com/user-attachments/assets/e4ffed54-7e31-4ccd-988c-f3966639ac16)
+
 
