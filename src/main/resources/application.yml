@@ -17,14 +17,3 @@ spring:
 
     hibernate:
       ddl-auto: update
-
-logging:
-  level:
-    org:
-      springframework:
-        security=DEBUG:
-
-
-  file:
-    name=app:
-      log:

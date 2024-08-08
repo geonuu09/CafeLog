@@ -1,10 +1,13 @@
 package com.project.cafelogproject.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.cafelogproject.dto.AddUserRequest;
 import com.project.cafelogproject.domain.User;
+import com.project.cafelogproject.dto.AddUserRequest;
 import com.project.cafelogproject.repository.UserRepository;
-import com.project.cafelogproject.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,9 +31,6 @@ public class UserControllerTest {
 
   @Autowired
   private UserRepository userRepository;
-
-  @Autowired
-  private UserService userService;
 
   @BeforeEach
   void setUp() {
