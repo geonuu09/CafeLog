@@ -38,10 +38,10 @@ public class User implements UserDetails {
   @Column(name = "password", nullable = false)
   private String password;
 
-  @Column(name = "nickname", nullable = false)
+
   private String nickname;
 
-  @Column(nullable = false)
+
   private LocalDateTime createdDate;
 
   private LocalDateTime modifiedDate;
@@ -83,8 +83,29 @@ public class User implements UserDetails {
     return List.of(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
+
   @Override
   public String getUsername() {
-    return email;
+    return this.email;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 }

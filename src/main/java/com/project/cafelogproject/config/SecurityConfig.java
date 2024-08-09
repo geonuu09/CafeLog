@@ -24,7 +24,7 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/users/register").permitAll()
+            .requestMatchers("/api/users/**").permitAll()
             .requestMatchers(PathRequest.toH2Console()).permitAll()
             .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable())

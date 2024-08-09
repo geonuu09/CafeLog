@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cafelogproject.domain.User;
-import com.project.cafelogproject.dto.AddUserRequest;
+import com.project.cafelogproject.dto.AddUserRequestDTO;
 import com.project.cafelogproject.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class UserControllerTest {
+public class AuthControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -40,7 +40,7 @@ public class UserControllerTest {
   @Test
   void register_success() throws Exception {
     // given
-    AddUserRequest request = new AddUserRequest();
+    AddUserRequestDTO request = new AddUserRequestDTO();
     request.setEmail("test@example.com");
     request.setPassword("password123");
     request.setNickname("testuser");
