@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,7 @@ public class AuthController {
         .body("User registered with id " + userId); // 회원가입 완료 메시지 반환
   }
 
-  @GetMapping("/login")
+  @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
     log.info("Login request {}", request);
 
