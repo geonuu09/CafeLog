@@ -1,8 +1,10 @@
 package com.project.cafelogproject.service;
 
+import com.project.cafelogproject.config.exception.CustomException;
+import com.project.cafelogproject.config.exception.ErrorCode;
 import com.project.cafelogproject.domain.Post;
 import com.project.cafelogproject.domain.User;
-import com.project.cafelogproject.dto.CreatePostRequestDTO;
+import com.project.cafelogproject.dto.AddPostRequestDTO;
 import com.project.cafelogproject.dto.PostResponseDTO;
 import com.project.cafelogproject.repository.PostRepository;
 import com.project.cafelogproject.repository.UserRepository;
@@ -17,31 +19,34 @@ public class PostService {
   private final UserRepository userRepository;
 
   @Transactional
-  public PostResponseDTO createPost(CreatePostRequestDTO request, String userEmail) {
+  public PostResponseDTO addPost(AddPostRequestDTO request, String userEmail) {
     User user = userRepository.findByEmail(userEmail)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
 
     Post post = Post.builder()
-        .name(request.getName())
+        .cafeName(request.getCafeName())
         .address(request.getAddress())
         .recommend(request.getRecommend())
-        .description(request.getDescription())
+        .content(request.getContent())
         .isPublic(request.getIsPublic())
         .user(user)
         .build();
 
     Post savedPost = postRepository.save(post);
 
-    return mapToPostResponse(savedPost);
+    return toPostResponseDTO(savedPost);
   }
 
-  private PostResponseDTO mapToPostResponse(Post post) {
+  // post 객체를 DTO 로 변환
+  private PostResponseDTO toPostResponseDTO(Post post) {
     return PostResponseDTO.builder()
         .id(post.getId())
-        .name(post.getName())
+        .cafeName(post.getCafeName())
         .address(post.getAddress())
         .recommend(post.getRecommend())
-        .description(post.getDescription())
+        .content(post.getContent())
         .isPublic(post.getIsPublic())
         .userEmail(post.getUser().getEmail())  // 작성자 이메일 추가
         .build();

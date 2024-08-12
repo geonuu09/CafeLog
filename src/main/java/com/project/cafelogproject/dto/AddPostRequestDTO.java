@@ -8,10 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CreatePostRequestDTO {
+public class AddPostRequestDTO {
 
   @NotBlank
-  private String name;
+  private String cafeName;
 
   @NotBlank
   private String address;
@@ -19,7 +19,7 @@ public class CreatePostRequestDTO {
   private Boolean recommend;
 
   @NotBlank
-  private String description;
+  private String content;
 
   private Boolean isPublic;
 }
