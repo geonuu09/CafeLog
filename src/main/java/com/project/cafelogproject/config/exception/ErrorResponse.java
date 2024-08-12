@@ -3,7 +3,6 @@ package com.project.cafelogproject.config.exception;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 
 @Getter
