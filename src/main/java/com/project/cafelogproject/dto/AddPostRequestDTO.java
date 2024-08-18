@@ -1,6 +1,7 @@
 package com.project.cafelogproject.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class AddPostRequestDTO {
   private String address;
 
   private Boolean recommend;
-
+  private List<String> tags;
   @NotBlank
   private String content;
 

@@ -8,9 +8,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -59,14 +63,27 @@ public class Post {
   @JoinColumn(name = "user_id")
   private User user;
 
+  @ManyToMany
+  @JoinTable(
+      name = "post_tags",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "tag_id")
+  )
+  private Set<Tag> tags = new HashSet<>();
+
+  public void addTag(Tag tag) {
+    this.tags.add(tag);
+  }
+
   @Builder
-  public Post(String cafeName, String address, Boolean recommend, String content, Boolean isPublic, User user) {
+  public Post(String cafeName, String address, Boolean recommend, String content, Boolean isPublic, User user, Set<Tag> tags) {
     this.cafeName = cafeName;
     this.address = address;
     this.recommend = recommend;
     this.content = content;
     this.isPublic = isPublic;
     this.user = user;
+    this.tags = tags != null ? tags : new HashSet<>();
     this.createdDate = LocalDateTime.now();
     this.modifiedDate = LocalDateTime.now();
   }

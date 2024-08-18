@@ -19,7 +19,7 @@ public enum ErrorCode {
   DUPLICATE_EMAIL(BAD_REQUEST, "이미 등록된 이메일입니다"),
   LOGIN_FAILED(UNAUTHORIZED, "로그인에 실패했습니다"),
   USER_NOT_FOUND(NOT_FOUND, "사용자를 찾을 수 없습니다"),
-
+  POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 태그 및 카페이름을 가진 게시글이 없습니다."),
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다");
 
   private final HttpStatus httpStatus;
