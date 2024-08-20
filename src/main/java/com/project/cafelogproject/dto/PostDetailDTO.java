@@ -7,11 +7,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PostDetailResponseDTO {
-  private Long id;
+public class PostDetailDTO {
   private String cafeName;
+  private String address;
+  private Boolean recommend;
   private String content;
-  private String authorName;
+  private String userEmail;
   private LocalDateTime createdDate;
   private List<String> tags;
 }

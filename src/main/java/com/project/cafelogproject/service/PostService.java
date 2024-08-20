@@ -6,28 +6,30 @@ import com.project.cafelogproject.domain.Post;
 import com.project.cafelogproject.domain.Tag;
 import com.project.cafelogproject.domain.User;
 import com.project.cafelogproject.dto.AddPostRequestDTO;
-import com.project.cafelogproject.dto.PostDetailResponseDTO;
-import com.project.cafelogproject.dto.PostResponseDTO;
+import com.project.cafelogproject.dto.PostDetailDTO;
 import com.project.cafelogproject.repository.PostRepository;
 import com.project.cafelogproject.repository.TagRepository;
 import com.project.cafelogproject.repository.UserRepository;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
+
   private final PostRepository postRepository;
   private final UserRepository userRepository;
   private final TagRepository tagRepository;
 
-
   @Transactional
-  public PostResponseDTO addPost(AddPostRequestDTO request, String userEmail) {
+  public PostDetailDTO addPost(AddPostRequestDTO request, String userEmail) {
     User user = userRepository.findByEmail(userEmail)
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -48,47 +50,55 @@ public class PostService {
 
     Post savedPost = postRepository.save(post);
 
-    return toPostResponseDTO(savedPost);
+    return toPostDetailDTO(savedPost);
   }
 
-  public List<PostResponseDTO> searchPosts(String query) {
-    List<Post> posts = postRepository.findByTagsNameContainingIgnoreCaseOrCafeNameContainingIgnoreCase(query, query);
+
+  public Page<PostDetailDTO> searchPosts(String query, Pageable pageable) {
+    Page<Post> posts = postRepository.findByTagsNameContainingIgnoreCaseOrCafeNameContainingIgnoreCase(
+        query, query, pageable);
 
     if (posts.isEmpty()) {
       throw new CustomException(ErrorCode.POST_NOT_FOUND);
     }
 
-    return posts.stream().map(this::toPostResponseDTO).collect(Collectors.toList());
+    return posts.map(this::toPostDetailDTO);
   }
-  // post 객체를 DTO 로 변환
-  private PostResponseDTO toPostResponseDTO(Post post) {
-    return PostResponseDTO.builder()
-        .id(post.getId())
+
+  public Page<PostDetailDTO> getAllPosts(Pageable pageable) {
+    return postRepository.findAll(pageable).map(this::toPostDetailDTO);
+  }
+
+  public PostDetailDTO getPostById(Long id) {
+    Post post = postRepository.findById(id)
+        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+    return toPostDetailDTO(post);
+  }
+
+  @Transactional
+  public void deletePost(Long postId, String userEmail) {
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+    User user = userRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+    if (!post.getUser().equals(user)) {
+      throw new CustomException(ErrorCode.UNAUTHORIZED_POST_DELETE);
+    }
+
+    postRepository.delete(post);
+  }
+
+  private PostDetailDTO toPostDetailDTO(Post post) {
+    return PostDetailDTO.builder()
         .cafeName(post.getCafeName())
         .address(post.getAddress())
         .recommend(post.getRecommend())
         .content(post.getContent())
-        .isPublic(post.getIsPublic())
-        .userEmail(post.getUser().getEmail())  // 작성자 이메일 추가
-        .tags(post.getTags().stream().map(Tag::getName).collect(Collectors.toList()))
-        .build();
-  }
-
-  public PostDetailResponseDTO getPostById(Long id) {
-    Post post = postRepository.findById(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-    return toPostDetailResponseDTO(post);
-  }
-  private PostDetailResponseDTO toPostDetailResponseDTO(Post post) {
-    return PostDetailResponseDTO.builder()
-        .id(post.getId())
-        .cafeName(post.getCafeName())
-        .content(post.getContent())
-        .authorName(post.getUser().getNickname())  // 작성자 닉네임
+        .userEmail(post.getUser().getEmail())
         .createdDate(post.getCreatedDate())
         .tags(post.getTags().stream().map(Tag::getName).collect(Collectors.toList()))
         .build();
   }
-
-
 }
