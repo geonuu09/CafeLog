@@ -54,11 +54,6 @@ public class PostController {
     return ResponseEntity.ok(postService.getAllPosts(pageable));
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<PostDetailDTO> getPostById(@PathVariable Long id) {
-    return ResponseEntity.ok(postService.getPostById(id));
-  }
-
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails == null) {
