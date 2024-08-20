@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cafelogproject.domain.Post;
 import com.project.cafelogproject.domain.User;
 import com.project.cafelogproject.dto.AddPostRequestDTO;
+import com.project.cafelogproject.dto.UpdatePostRequestDTO;
 import com.project.cafelogproject.repository.PostRepository;
 import com.project.cafelogproject.repository.UserRepository;
 import java.util.Arrays;
@@ -73,6 +75,40 @@ public class PostControllerTest {
         .andExpect(jsonPath("$.tags", hasSize(2)))
         .andExpect(jsonPath("$.tags", containsInAnyOrder("tag1", "tag2")));
   }
+
+  @Test
+  @WithMockUser(username = "test@example.com")
+  public void testUpdatePost() throws Exception {
+    User user = new User("test@example.com", "password", "Test User");
+    userRepository.save(user);
+
+    Post post = new Post();
+    post.setCafeName("Original Cafe");
+    post.setAddress("Original Address");
+    post.setRecommend(true);
+    post.setContent("Original Content");
+    post.setIsPublic(true);
+    post.setUser(user);
+    post = postRepository.save(post);
+
+    UpdatePostRequestDTO updateDTO = new UpdatePostRequestDTO();
+    updateDTO.setCafeName("Updated Cafe");
+    updateDTO.setAddress("Updated Address");
+    updateDTO.setRecommend(false);
+    updateDTO.setContent("Updated Content");
+    updateDTO.setIsPublic(true);
+    updateDTO.setTags(Arrays.asList("updatedTag1", "updatedTag2"));
+
+    mockMvc.perform(put("/posts/" + post.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.cafeName").value("Updated Cafe"))
+        .andExpect(jsonPath("$.content").value("Updated Content"))
+        .andExpect(jsonPath("$.tags", hasSize(2)))
+        .andExpect(jsonPath("$.tags", containsInAnyOrder("updatedTag1", "updatedTag2")));
+  }
+
 
 
   @Test

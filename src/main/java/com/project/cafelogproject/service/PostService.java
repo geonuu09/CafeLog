@@ -7,6 +7,8 @@ import com.project.cafelogproject.domain.Tag;
 import com.project.cafelogproject.domain.User;
 import com.project.cafelogproject.dto.AddPostRequestDTO;
 import com.project.cafelogproject.dto.PostDetailDTO;
+import com.project.cafelogproject.dto.PostResponseDTO;
+import com.project.cafelogproject.dto.UpdatePostRequestDTO;
 import com.project.cafelogproject.repository.PostRepository;
 import com.project.cafelogproject.repository.TagRepository;
 import com.project.cafelogproject.repository.UserRepository;
@@ -53,6 +55,37 @@ public class PostService {
     return toPostDetailDTO(savedPost);
   }
 
+  @Transactional
+  public PostResponseDTO updatePost(Long postId, UpdatePostRequestDTO updateDTO, String userEmail) {
+    Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+    User user = userRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+    if (!post.getUser().equals(user)) {
+      throw new CustomException(ErrorCode.UNAUTHORIZED_POST_UPDATE);
+    }
+
+    post.setCafeName(updateDTO.getCafeName());
+    post.setAddress(updateDTO.getAddress());
+    post.setRecommend(updateDTO.getRecommend());
+    post.setContent(updateDTO.getContent());
+    post.setIsPublic(updateDTO.getIsPublic());
+
+    // 태그 업데이트
+    post.getTags().clear();
+    Set<Tag> newTags = updateDTO.getTags().stream()
+        .map(tagName -> tagRepository.findByName(tagName.replaceAll("\\s", "").toLowerCase())
+            .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+        .collect(Collectors.toSet());
+    post.setTags(newTags);
+
+    Post updatedPost = postRepository.save(post);
+    return toPostResponseDTO(updatedPost);
+  }
+
+
 
   public Page<PostDetailDTO> searchPosts(String query, Pageable pageable) {
     Page<Post> posts = postRepository.findByTagsNameContainingIgnoreCaseOrCafeNameContainingIgnoreCase(
@@ -69,11 +102,6 @@ public class PostService {
     return postRepository.findAll(pageable).map(this::toPostDetailDTO);
   }
 
-  public PostDetailDTO getPostById(Long id) {
-    Post post = postRepository.findById(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-    return toPostDetailDTO(post);
-  }
 
   @Transactional
   public void deletePost(Long postId, String userEmail) {
@@ -96,6 +124,20 @@ public class PostService {
         .address(post.getAddress())
         .recommend(post.getRecommend())
         .content(post.getContent())
+        .userEmail(post.getUser().getEmail())
+        .createdDate(post.getCreatedDate())
+        .tags(post.getTags().stream().map(Tag::getName).collect(Collectors.toList()))
+        .build();
+  }
+
+  private PostResponseDTO toPostResponseDTO(Post post) {
+    return PostResponseDTO.builder()
+        .id(post.getId())
+        .cafeName(post.getCafeName())
+        .address(post.getAddress())
+        .recommend(post.getRecommend())
+        .content(post.getContent())
+        .isPublic(post.getIsPublic())
         .userEmail(post.getUser().getEmail())
         .createdDate(post.getCreatedDate())
         .tags(post.getTags().stream().map(Tag::getName).collect(Collectors.toList()))

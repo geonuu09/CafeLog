@@ -1,5 +1,6 @@
 package com.project.cafelogproject.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +15,6 @@ public class PostResponseDTO {
   private String content; // 설명
   private Boolean isPublic;   // 공개 여부
   private String userEmail;   // 작성자 이메일
+  private LocalDateTime createdDate;
   private List<String> tags;
 }
