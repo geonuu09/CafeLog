@@ -10,7 +10,6 @@ import com.project.cafelogproject.dto.PostDetailDTO;
 import com.project.cafelogproject.dto.PostResponseDTO;
 import com.project.cafelogproject.dto.UpdatePostRequestDTO;
 import com.project.cafelogproject.repository.PostRepository;
-import com.project.cafelogproject.repository.TagRepository;
 import com.project.cafelogproject.repository.UserRepository;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final UserRepository userRepository;
-  private final TagRepository tagRepository;
+  private final TagService tagService;
 
   @Transactional
   public PostDetailDTO addPost(AddPostRequestDTO request, String userEmail) {
@@ -36,8 +35,7 @@ public class PostService {
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
     Set<Tag> tags = request.getTags().stream()
-        .map(tagName -> tagRepository.findByName(tagName)
-            .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+        .map(tagService::getOrCreateTag)
         .collect(Collectors.toSet());
 
     Post post = Post.builder()
@@ -76,16 +74,13 @@ public class PostService {
     // 태그 업데이트
     post.getTags().clear();
     Set<Tag> newTags = updateDTO.getTags().stream()
-        .map(tagName -> tagRepository.findByName(tagName.replaceAll("\\s", "").toLowerCase())
-            .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+        .map(tagService::getOrCreateTag)
         .collect(Collectors.toSet());
     post.setTags(newTags);
 
     Post updatedPost = postRepository.save(post);
     return toPostResponseDTO(updatedPost);
   }
-
-
 
   public Page<PostDetailDTO> searchPosts(String query, Pageable pageable) {
     Page<Post> posts = postRepository.findByTagsNameContainingIgnoreCaseOrCafeNameContainingIgnoreCase(
@@ -101,7 +96,6 @@ public class PostService {
   public Page<PostDetailDTO> getAllPosts(Pageable pageable) {
     return postRepository.findAll(pageable).map(this::toPostDetailDTO);
   }
-
 
   @Transactional
   public void deletePost(Long postId, String userEmail) {
