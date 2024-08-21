@@ -21,3 +21,4 @@ spring:
 jwt:
   issuer: test@gmail.com
   secret-key:  cHJvamVjdENhZmVMb2ctc2VydmljZS1wcm9qZWN0LWp3dFRva2VuLXNlY3JldEtleQo=
+

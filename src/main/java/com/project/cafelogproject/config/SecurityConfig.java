@@ -1,6 +1,6 @@
 package com.project.cafelogproject.config;
 
-import com.project.cafelogproject.service.UserDetailService;
+import com.project.cafelogproject.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -11,23 +11,29 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-  private final UserDetailService userService;
+  private final TokenProvider tokenProvider;
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/users/**").permitAll()
+            .requestMatchers("/users/**").permitAll()
+            .requestMatchers("/posts/write").authenticated()
+            .requestMatchers("/posts/**").permitAll()
             .requestMatchers(PathRequest.toH2Console()).permitAll()
             .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable())
+        .addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
         .headers((headers) -> headers  // h2 콘솔 화면 보이도록 하기위해서 header 지정
             .addHeaderWriter(new XFrameOptionsHeaderWriter(
                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
@@ -37,16 +43,15 @@ public class SecurityConfig {
 
     return http.build();
   }
-@Bean
-public AuthenticationManager authenticationManager(HttpSecurity http,
-    BCryptPasswordEncoder bCryptPasswordEncoder, UserDetailService userDetailService)
-    throws Exception {
-  DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-  authProvider.setPasswordEncoder(bCryptPasswordEncoder);
-  authProvider.setUserDetailsService(userService);
-  return new ProviderManager(authProvider);
-
-}
+  @Bean
+  public AuthenticationManager authenticationManager(
+      UserDetailsService userDetailsService,
+      PasswordEncoder passwordEncoder) {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder);
+    return new ProviderManager(authProvider);
+  }
   @Bean
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
