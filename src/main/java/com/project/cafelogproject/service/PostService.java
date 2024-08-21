@@ -11,6 +11,7 @@ import com.project.cafelogproject.dto.PostResponseDTO;
 import com.project.cafelogproject.dto.UpdatePostRequestDTO;
 import com.project.cafelogproject.repository.PostRepository;
 import com.project.cafelogproject.repository.UserRepository;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -65,21 +66,24 @@ public class PostService {
       throw new CustomException(ErrorCode.UNAUTHORIZED_POST_UPDATE);
     }
 
-    post.setCafeName(updateDTO.getCafeName());
-    post.setAddress(updateDTO.getAddress());
-    post.setRecommend(updateDTO.getRecommend());
-    post.setContent(updateDTO.getContent());
-    post.setIsPublic(updateDTO.getIsPublic());
 
-    // 태그 업데이트
-    post.getTags().clear();
-    Set<Tag> newTags = updateDTO.getTags().stream()
-        .map(tagService::getOrCreateTag)
-        .collect(Collectors.toSet());
-    post.setTags(newTags);
+    post.update(updateDTO.getCafeName(),
+        updateDTO.getAddress(),
+        updateDTO.getRecommend(),
+        updateDTO.getContent(),
+        updateDTO.getIsPublic());
+
+    updatePostTags(post, updateDTO.getTags());
 
     Post updatedPost = postRepository.save(post);
     return toPostResponseDTO(updatedPost);
+  }
+  private void updatePostTags(Post post, List<String> newTags) {
+    post.getTags().clear();
+    Set<Tag> updatedTags = newTags.stream()
+        .map(tagService::getOrCreateTag)
+        .collect(Collectors.toSet());
+    post.setTags(updatedTags);
   }
 
   public Page<PostDetailDTO> searchPosts(String query, Pageable pageable) {
