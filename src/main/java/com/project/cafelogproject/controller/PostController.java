@@ -75,7 +75,8 @@ public class PostController {
    */
   @GetMapping("/search")
   public ResponseEntity<Page<PostDetailDTO>> searchPosts(@RequestParam String query,
-      @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
+
     return ResponseEntity.ok(postService.searchPosts(query, pageable));
   }
 
