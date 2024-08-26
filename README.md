@@ -40,8 +40,7 @@
 
 - 즐겨찾기 기능
     - 다른 사용자의 카페 기록 즐겨찾기 추가/조회/삭제 기능
-    - 즐겨찾기 목록 조회 기능
-
+    - 즐겨찾기는 최신순으로만 정렬되며, paging 처리를 한다. 
 ![image](https://github.com/user-attachments/assets/c21bf5ac-ee96-4088-84c2-54e5248a5489)
 
 
