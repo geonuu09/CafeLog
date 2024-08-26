@@ -62,9 +62,8 @@ public class CommentService {
     }
 
     comment.updateContent(updateCommentDTO.getContent());
-    Comment updatedComment = commentRepository.save(comment);
 
-    return toCommentDTO(updatedComment);
+    return toCommentDTO(comment);
   }
   @Transactional
   public void deleteComment(Long postId, Long commentId, String userEmail) {

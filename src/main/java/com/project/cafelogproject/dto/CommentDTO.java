@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+
 public class CommentDTO {
   private Long id;
 
@@ -17,4 +18,6 @@ public class CommentDTO {
 
   private String userEmail;
   private LocalDateTime createdDate;
+
+
 }
