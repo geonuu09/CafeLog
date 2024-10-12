@@ -19,6 +19,14 @@ jobs:
           java-version: '17'
           distribution: 'corretto'
 
+      - name: Apply Gradle cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: gradlew 파일 실행 권한 부여
         run: chmod +x ./gradlew
 
