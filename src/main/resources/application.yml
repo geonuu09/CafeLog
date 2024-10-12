@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://cl-db.c1cyoi64keig.ap-northeast-2.rds.amazonaws.com:3306/cl-db
+    url: jdbc:mysql://cl-db.c1cyoi64keig.ap-northeast-2.rds.amazonaws.com:3306/cafelog_db
     username: admin
     password: test1234
     driver-class-name: com.mysql.cj.jdbc.Driver
