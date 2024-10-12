@@ -2,7 +2,6 @@ package com.project.cafelogproject.config;
 
 import com.project.cafelogproject.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,10 +26,10 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/users/**").permitAll()
+            .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/posts/write").authenticated()
             .requestMatchers("/posts/**").permitAll()
-            .requestMatchers(PathRequest.toH2Console()).permitAll()
+//            .requestMatchers(PathRequest.toH2Console()).permitAll()
             .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable())
         .addFilterBefore(new TokenAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
