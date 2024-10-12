@@ -12,8 +12,10 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,11 +47,18 @@ public class AuthService {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
       );
-      log.info("Authentication successful for email : {}", dto.getEmail());
+      log.info("이메일 인증 성공: {}", dto.getEmail());
 
       User user = (User) authentication.getPrincipal();
       return tokenProvider.generateToken(user, Duration.ofHours(1));
+    } catch (BadCredentialsException e) {
+      log.error("잘못된 자격 증명: {}", dto.getEmail());
+      throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+    } catch (UsernameNotFoundException e) {
+      log.error("사용자를 찾을 수 없음: {}", dto.getEmail());
+      throw new CustomException(ErrorCode.USER_NOT_FOUND);
     } catch (Exception e) {
+      log.error("로그인 중 예상치 못한 오류 발생: {}", e.getMessage());
       throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
   }

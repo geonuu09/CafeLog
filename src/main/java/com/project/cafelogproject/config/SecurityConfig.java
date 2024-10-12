@@ -31,6 +31,7 @@ public class SecurityConfig {
     http
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/posts/write").authenticated()
             .requestMatchers("/posts/**").permitAll()
             .anyRequest().authenticated())
