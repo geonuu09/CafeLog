@@ -43,22 +43,27 @@ public class AuthService {
   }
 
   public String login(LoginRequestDTO dto) {
+    User user = userRepository.findByEmail(dto.getEmail())
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
     try {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
       );
       log.info("이메일 인증 성공: {}", dto.getEmail());
 
-      User user = (User) authentication.getPrincipal();
       return tokenProvider.generateToken(user, Duration.ofHours(1));
     } catch (BadCredentialsException e) {
-      log.error("잘못된 자격 증명: {}", dto.getEmail());
+      log.error("잘못된 자격 증명: {}", dto.getEmail(), e);
       throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
     } catch (UsernameNotFoundException e) {
-      log.error("사용자를 찾을 수 없음: {}", dto.getEmail());
+      log.error("사용자를 찾을 수 없음: {}", dto.getEmail(), e);
       throw new CustomException(ErrorCode.USER_NOT_FOUND);
+    } catch (CustomException e) {
+      log.error("로그인 중 커스텀 예외 발생: {}", e.getMessage(), e);
+      throw e;
     } catch (Exception e) {
-      log.error("로그인 중 예상치 못한 오류 발생: {}", e.getMessage());
+      log.error("로그인 중 예기치 않은 오류 발생", e);
       throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
   }
