@@ -31,7 +31,7 @@ public class AuthService implements UserDetailsService {
 
   public Long save(AddUserRequestDTO dto) {
     if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-      throw new CustomException(ErrorCode.DUPLICATE_EMAIL); // 이미 존재하는 이메일
+      throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
     }
 
     return userRepository.save(User.builder()
