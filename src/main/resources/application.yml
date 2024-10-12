@@ -1,28 +1,21 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
+    url: jdbc:mysql://cl-db.c1cyoi64keig.ap-northeast-2.rds.amazonaws.com:3306/cafelog_db
+    username: admin
+    password: test1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    show-sql: true
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
+        show_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
-    hibernate:
-      ddl-auto: none
-
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:post.sql
 jwt:
   issuer: test@gmail.com
-  secret-key:  cHJvamVjdENhZmVMb2ctc2VydmljZS1wcm9qZWN0LWp3dFRva2VuLXNlY3JldEtleQo=
-
+  secret-key: cHJvamVjdENhZmVMb2ctc2VydmljZS1wcm9qZWN0LWp3dFRva2VuLXNlY3JldEtleQo=
