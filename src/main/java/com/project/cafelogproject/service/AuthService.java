@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,8 +27,8 @@ public class AuthService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final AuthenticationManager authenticationManager;
   private final TokenProvider tokenProvider;
+  private final AuthenticationManager authenticationManager;
 
   public Long save(AddUserRequestDTO dto) {
     if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -42,15 +43,13 @@ public class AuthService implements UserDetailsService {
         .build()).getId();
   }
 
-
   public String login(LoginRequestDTO dto) {
     try {
-      // 사용자 인증
       Authentication authentication = authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+          new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+      );
       log.info("Authentication successful for email : {}", dto.getEmail());
 
-      // 인증 성공 시 JWT 생성
       User user = (User) authentication.getPrincipal();
       return tokenProvider.generateToken(user, Duration.ofHours(1));
     } catch (Exception e) {
