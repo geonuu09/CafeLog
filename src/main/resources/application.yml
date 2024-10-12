@@ -15,10 +15,6 @@ spring:
         format_sql: true
         show_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:post.sql
 jwt:
   issuer: test@gmail.com
   secret-key:  cHJvamVjdENhZmVMb2ctc2VydmljZS1wcm9qZWN0LWp3dFRva2VuLXNlY3JldEtleQo=
