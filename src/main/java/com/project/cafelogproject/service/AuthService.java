@@ -1,5 +1,7 @@
 package com.project.cafelogproject.service;
 
+import com.project.cafelogproject.config.exception.CustomException;
+import com.project.cafelogproject.config.exception.ErrorCode;
 import com.project.cafelogproject.config.jwt.TokenProvider;
 import com.project.cafelogproject.domain.User;
 import com.project.cafelogproject.dto.AddUserRequestDTO;
@@ -12,13 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthService {
+public class AuthService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
@@ -26,6 +30,10 @@ public class AuthService {
   private final TokenProvider tokenProvider;
 
   public Long save(AddUserRequestDTO dto) {
+    if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+      throw new CustomException(ErrorCode.DUPLICATE_EMAIL); // 이미 존재하는 이메일
+    }
+
     return userRepository.save(User.builder()
         .email(dto.getEmail())
         .password(passwordEncoder.encode(dto.getPassword()))
@@ -34,9 +42,6 @@ public class AuthService {
         .build()).getId();
   }
 
-  public boolean existsByEmail(String email) {
-    return userRepository.findByEmail(email).isPresent();
-  }
 
   public String login(LoginRequestDTO dto) {
     try {
@@ -48,9 +53,14 @@ public class AuthService {
       // 인증 성공 시 JWT 생성
       User user = (User) authentication.getPrincipal();
       return tokenProvider.generateToken(user, Duration.ofHours(1));
-    } catch (AuthenticationException e) {
-      log.error("Authentication failed for email : {}", dto.getEmail(), e);
-      throw new RuntimeException("Invalid email or password", e);
+    } catch (Exception e) {
+      throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
   }
 }

@@ -25,20 +25,15 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody @Valid AddUserRequestDTO request) {
-
-    if (authService.existsByEmail(request.getEmail())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
-    }
-    log.info("Registering user {}", request.getEmail());
-    Long userId = authService.save(request); // 회원가입 매서드 호출
+  public ResponseEntity<String> register(@RequestBody @Valid AddUserRequestDTO request) {
+    Long userId = authService.save(request);
     log.info("User {} registered", userId);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body("User registered with id " + userId); // 회원가입 완료 메시지 반환
+        .body("User registered with id " + userId);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
+  public ResponseEntity<String> login(@RequestBody LoginRequestDTO request) {
     log.info("Login request {}", request);
 
     try {
